@@ -1,6 +1,8 @@
 ---
+layout: post
 title: "I Built a Personal AI News Anchor in 90 Minutes (by Arguing with an LLM)"
 date: 2024-11-29
+categories: [AI, Automation, Engineering]
 ---
 
 # I Built a Personal AI News Anchor in 90 Minutes (by Arguing with an LLM)
@@ -30,12 +32,50 @@ Convert high-signal AI news (Hacker News) into a 15-minute audio briefing for da
 
 ## 🧠 Architectural Decision Log
 
-| Challenge | The "Lazy" Way | Our "Engineered" Choice | Reason |
-| :--- | :--- | :--- | :--- |
-| **Filtering** | Keyword Search | **LLM Classifier** | Keywords miss context. The LLM catches "neural networks" even if "AI" isn't in the title. |
-| **Cleaning** | Complex Scraping | **HTML-to-Markdown** | The "batteries included" MVP solution. Removes noise cheaply without hallucination risks. |
-| **Delivery** | Mobile App | **Browser Stream** | Zero friction. No app to build; just a direct binary stream to the browser's media player. |
+### 1. The Filtering Strategy: Keywords vs. Concepts
+**The Conflict:** My first instinct was to use a simple `IF` node: *If title contains 'AI', keep it.* But this approach is brittle.
+* **The "Missed Signal" Risk:** If a groundbreaking paper comes out titled *"Optimizing Sparse Matrices for Transformer Architecture,"* a keyword filter looking for "AI" will trash it.
+* **The "Reliability" Problem:** Conversely, a press release titled *"Our new Toaster now has AI!"* would pass the filter, cluttering my walk.
 
-## Conclusion
-This project wasn't just about saving time; it was about defining a workflow that fits *my* life. By treating the AI as a partner rather than just a code generator, I built a robust tool that keeps me informed without the burnout.
+**The Resolution:** I chose to use an **LLM Classifier**. By sending the title to a model with the prompt *"Is this highly technical software news?"*, I trade a small API cost for semantic understanding. The model knows that "Mamba Architecture" is relevant, even if the acronym "AI" never appears.
 
+### 2. The Cleaning Strategy: Intelligence vs. Engineering
+**The Conflict:** My initial thought was to use an **AI Agent** to "read" the webpage and extract the main content.
+* **The Problem:** Sending 100kb of raw HTML (full of ad scripts) to an LLM is a massive waste of tokens and adds latency.
+
+**The Resolution:** I opted for a "dumb" tool: an **HTML-to-Markdown converter**. It strips 90% of the characters (the noise) while preserving 100% of the signal (headers, code blocks) deterministically, without hallucination risks.
+
+### 3. The Delivery Strategy: Apps vs. Streams
+**The Conflict:** The "proper" engineering solution would be to build a mobile app or a Telegram bot. But that introduces friction (auth, updates, UI). I just want to walk out the door and listen.
+
+**The Resolution:** I chose a **Browser Stream**. I set up an n8n Webhook that returns a binary audio file.
+* **The Workflow:** Click Bookmark → n8n runs logic → Audio starts playing in the browser.
+* **The Payoff:** Zero UI to build, zero apps to maintain.
+
+## 📊 System Diagram
+
+```mermaid
+graph TD
+    %% Nodes
+    Trigger[📱 Webhook Trigger] --> Fetch[HTTP Request: RSS]
+    Fetch --> Filter[🧠 AI Agent: Filter]
+    
+    %% Logic Split
+    Filter -- Yes --> Extract[HTML to Markdown]
+    Filter -- No --> End[Stop]
+    
+    %% Extraction
+    Extract --> Fork{Parallel Fork}
+    
+    %% Branch A: Audio
+    Fork -- Audio --> Summarize[LLM: Audio Script]
+    Summarize --> TTS[OpenAI TTS]
+    TTS --> Stream[🔊 Stream to Phone]
+    
+    %% Branch B: Archive
+    Fork -- Archive --> Save[💾 Save to GitHub Repo]
+    
+    %% Styling
+    style Filter fill:#f9f,stroke:#333,stroke-width:2px
+    style Fork fill:#bbf,stroke:#333,stroke-width:2px
+```
