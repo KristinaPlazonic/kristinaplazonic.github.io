@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Understanding S3 Tables with Apache Iceberg Integration"
-date: 2024-11-29
+date: 2025-11-15
 categories: [data-engineering, aws, iceberg, duckdb]
 tags: [s3, apache-iceberg, data-lakes, aws, duckdb]
 ---
