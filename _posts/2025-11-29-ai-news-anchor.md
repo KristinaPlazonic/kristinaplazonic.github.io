@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "I Built a Personal AI News Anchor in 90 Minutes (by Arguing with an LLM)"
-date: 2024-11-29
+date: 2025-11-29
 categories: [AI, Automation, Engineering]
 ---
 

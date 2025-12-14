@@ -1,6 +1,7 @@
-# MCP Server with OpenAPI: Automatically Exposing REST APIs as Tools
-
-*December 14, 2025*
+---
+layout: post
+title: MCP Server with OpenAPI: Automatically Exposing REST APIs as Tools
+date: 2025-12-14
 
 ## 1. Introduction
 
@@ -114,6 +115,8 @@ if __name__ == "__main__":
 - If you change your API, restart the MCP server to pick up the new schema
 - The `client` base_url should match where your API is actually running
 
+[mcp inspector pointed at the mcp server](assets/images/2025-12-14-mcp_inspector_openapi_mcp.png)
+
 ## 4. Test Script
 
 To verify everything works, here's a test client that connects to the MCP server and calls each tool:
@@ -144,7 +147,7 @@ async def test_mcp_server():
         print(f"Result: {result.content[0].text}\n")
         
         print("Test 3: Creating new item...")
-        result = await client.call_tool("create_item", {
+    f    result = await client.call_tool("create_item", {
             "name": "Laptop",
             "description": "High-performance laptop",
             "price": 1299.99
